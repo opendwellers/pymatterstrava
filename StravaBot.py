@@ -3,6 +3,8 @@ from numpy import  array_equal
 
 import ConfigParser
 import time
+import requests
+import json
 
 #client = Client()
 #access_token = client.exchange_code_for_token(client_id=11801, client_secret='f1d4b15369eb1e8f6e7bb39bbaa65942e127577d', code='139090cec37a555b4577c50a38a8114523492c23')
@@ -40,6 +42,10 @@ class StravaBot:
     def get_club_members(self):
         return self.client.get_club_members(self.clubId) 
 
+    def post_activity(self, activity):
+        payload =  {'text': 'This is a test using python requests and mattermost ingoing webhooks'};
+        requests.post(self.mattermostUrl, data=json.dumps(payload), verify=False) 
+
 
     def run(self):
         members = self.get_club_members()
@@ -50,7 +56,10 @@ class StravaBot:
         activities = self.client.get_club_activities(self.clubId, limit=20)
 
         for activity in activities:
+            # TODO post activity
             print(activity)
+            self.post_activity(activity)
+            time.sleep(10)
             activity.done = True
 
         while(1):
@@ -59,6 +68,7 @@ class StravaBot:
                 print('No changes!')
             else:
                 print('New stuff!')
+                # TODO post new activities
                 activities = new_activities
             time.sleep(2)
 
