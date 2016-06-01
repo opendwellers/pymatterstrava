@@ -1,0 +1,4 @@
+# Compiled python
+*.pyc
+# Ignore config files as we don't want to push our secrets to Github :^)
+config
