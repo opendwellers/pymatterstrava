@@ -20,8 +20,16 @@ class StravaBot:
         Config = ConfigParser.ConfigParser()
         Config.read("config")
         Config.sections()
-        print('Bot is here :^)')
-        print(Config.sections())
 
-        
+        self.clientId = Config.get('Strava', 'ClientId')
+        self.clientSecret = Config.get('Strava', 'ClientSecret')
+        self.clientAccessToken = Config.get('Strava', 'ClientAccessToken')
+        self.clubId = Config.get('Strava', 'ClubId')
+
+        self.mattermostUrl = Config.get('Mattermost', 'URL')
+
+        print('Bot is here :^)')
+
+
+#    def run(self):
 
