@@ -46,20 +46,24 @@ class StravaBot:
         payload =  {'text': 'This is a test using python requests and mattermost ingoing webhooks'};
         requests.post(self.mattermostUrl, data=json.dumps(payload), verify=False) 
 
+    def get_activity_details(self, activity):
+        return self.client.get_activity(activity.id)
+        
 
     def run(self):
         members = self.get_club_members()
 
-        for member in members:
-            print(member)
+#        for member in members:
+#            print(member)
 
         activities = self.client.get_club_activities(self.clubId, limit=20)
 
         for activity in activities:
-            # TODO post activity
-            print(activity)
-            self.post_activity(activity)
-            time.sleep(10)
+#            print(activity.id)
+#            self.post_activity(activity)
+#            dir(activity)
+            details = self.get_activity_details(activity)
+#           print(details.total_elevation_gain)
             activity.done = True
 
         while(1):
