@@ -6,20 +6,6 @@ import time
 import requests
 import json
 
-#client = Client()
-#access_token = client.exchange_code_for_token(client_id=11801, client_secret='f1d4b15369eb1e8f6e7bb39bbaa65942e127577d', code='139090cec37a555b4577c50a38a8114523492c23')
-
-#client.access_token = access_token
-#client.access_token = '1d049e3eecd42b4b3f9469922485940401031382'
-#athlete = client.get_athlete()
-#client.get_activities(
-#print("For {id}, I now have an access token ".format(id=athlete.id))
-
-#clubs = athlete.clubs
-
-#print(clubs)
-
-
 class StravaBot:
     def __init__(self):
         Config = ConfigParser.ConfigParser()
@@ -37,18 +23,20 @@ class StravaBot:
 
         self.club = self.client.get_club(self.clubId)
 
-        print('Bot for {club} is here :^)'.format(club=self.clubId))
+        print('Bot for club {name} with id {id} is here :^)'.format(name=self.club.name, id=self.clubId))
 
     def get_club_members(self):
         return self.client.get_club_members(self.clubId) 
 
     def post_activity(self, activity):
-        payload =  {'text': 'This is a test using python requests and mattermost ingoing webhooks'};
+        if (activity.athlete.firstname is None):
+            activity.athlete = self.client.get_athlete(activity.athlete.id)
+
+        payload =  {'text': '*{first_name} {last_name} : {distance}, {speed}, {climbing}* http://strava.com/activities/{id} {desc}'.format(first_name=activity.athlete.firstname, last_name=activity.athlete.lastname, distance=activity.distance, speed=activity.average_speed, climbing=activity.total_elevation_gain, id=activity.id, desc=activity.name)};
         requests.post(self.mattermostUrl, data=json.dumps(payload), verify=False) 
 
     def get_activity_details(self, activity):
         return self.client.get_activity(activity.id)
-        
 
     def run(self):
         members = self.get_club_members()
@@ -59,12 +47,10 @@ class StravaBot:
         activities = self.client.get_club_activities(self.clubId, limit=20)
 
         for activity in activities:
-#            print(activity.id)
-#            self.post_activity(activity)
-#            dir(activity)
             details = self.get_activity_details(activity)
-#           print(details.total_elevation_gain)
+            self.post_activity(details)
             activity.done = True
+            time.sleep(5)
 
         while(1):
             new_activities = self.client.get_club_activities(self.clubId, limit=20)
