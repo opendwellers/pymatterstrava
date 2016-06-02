@@ -15,3 +15,5 @@ As the stravalib api is working with python 2.7, I haven't tested this with any 
 `pip install stravalib`
 
 `pip install numpy`
+
+`mv template_config config` and complete the variables
