@@ -13,4 +13,5 @@ Python bot that fetches data from a Strava club and pushes the latest rides to a
 As the stravalib api is working with python 2.7, I haven't tested this with any other pyenv, so maybe it works with 3+ pyenvs.
 
 `pip install stravalib`
+
 `pip install numpy`
