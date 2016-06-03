@@ -1,4 +1,5 @@
 from stravalib.client import Client
+from stravalib.unithelper import kilometers, kilometers_per_hour, meters
 from numpy import not_equal
 
 import ConfigParser
@@ -10,7 +11,7 @@ import json
 class StravaBot:
     def __init__(self):
         Config = ConfigParser.ConfigParser()
-        Config.read("config")
+        Config.read("configuration/config")
         Config.sections()
 
         self.clientId = Config.get('Strava', 'ClientId')
@@ -27,14 +28,12 @@ class StravaBot:
 
         print('Bot for club {name} with id {id} is here :^)'.format(name=self.club.name, id=self.clubId))
 
-    def get_club_members(self):
-        return self.client.get_club_members(self.clubId)
-
     def post_activity(self, activity):
         if (activity.athlete.firstname is None):
             activity.athlete = self.client.get_athlete(activity.athlete.id)
 
-        payload = {'text': '*{first_name} {last_name} : {distance}, {speed}, {climbing}* http://strava.com/activities/{id} {desc}'.format(first_name=activity.athlete.firstname, last_name=activity.athlete.lastname, distance=activity.distance, speed=activity.average_speed, climbing=activity.total_elevation_gain, id=activity.id, desc=activity.name)}
+        payload = {'text': ':bicyclist: *{first_name} {last_name} : distance: {distance}, speed: {speed}, climbing: {climbing}* http://strava.com/activities/{id} {desc} :bicyclist:'.format(first_name=activity.athlete.firstname, last_name=activity.athlete.lastname, distance=kilometers(activity.distance), speed=kilometers_per_hour(activity.average_speed), climbing=meters(activity.total_elevation_gain), id=activity.id, desc=activity.name)}
+#        print(payload)
         requests.post(self.mattermostUrl, data=json.dumps(payload), verify=False)
 
     def get_activity_details(self, activity):
@@ -42,30 +41,35 @@ class StravaBot:
 
     def get_new_activities(self, old_activities, new_activities):
         new_list = []
+        new_activity_ids = []
+        old_activity_ids = []
         for new_activity in new_activities:
-            if (new_activity not in old_activities):
-                new_list.append(new_activity)
+            new_activity_ids.append(new_activity.id)
+        for old_activity in old_activities:
+            old_activity_ids.append(old_activity.id)
+
+        diff_ids = list(set(new_activity_ids) - set(old_activity_ids))
+        new_list = [act for act in new_activities if act.id in diff_ids]
 
         return new_list
 
     def run(self):
-        members = self.get_club_members()
 
         activities = set(self.client.get_club_activities(self.clubId, limit=3))
         new_activities = activities
 
         for activity in activities:
-            #details = self.get_activity_details(activity)
-            print(activity)
-            #self.post_activity(details)
+            details = self.get_activity_details(activity)
+            self.post_activity(details)
 
         while(1):
             new_activities = set(self.client.get_club_activities(self.clubId, limit=3))
-            if (not new_activities  == activities):
+            diff_activities = self.get_new_activities(activities, new_activities)
+            if len(diff_activities) > 0:
                 print('changes!')
-                for new_activity in self.get_new_activities(activities, new_activities):
-                    print(new_activity)
-                    #self.post_activity(new_activity)
+                for new_activity in diff_activities:
+                    details = self.get_activity_details(activity)
+                    self.post_activity(details)
             else:
                 print('no changes')
 

@@ -1,0 +1,11 @@
+[Strava]
+ClientId:
+ClientSecret:
+ClientAccessToken:
+ClubId:
+
+[Mattermost]
+URL:
+
+[Bot]
+Delay:
