@@ -33,7 +33,7 @@ class StravaBot:
         if (activity.athlete.firstname is None):
             activity.athlete = self.client.get_athlete(activity.athlete.id)
 
-        payload = {'text': ':bicyclist: *{first_name} {last_name} : distance: {distance}, speed: {speed}, climbing: {climbing}* http://strava.com/activities/{id} {desc} :bicyclist:'.format(first_name=activity.athlete.firstname, last_name=activity.athlete.lastname, distance=kilometers(activity.distance), speed=kilometers_per_hour(activity.average_speed), climbing=meters(activity.total_elevation_gain), id=activity.id, desc=activity.name)}
+        payload = {'text': u':bicyclist: *{first_name} {last_name} : distance: {distance}, speed: {speed}, climbing: {climbing}* http://strava.com/activities/{id} {desc} :bicyclist:'.format(first_name=activity.athlete.firstname, last_name=activity.athlete.lastname, distance=kilometers(activity.distance), speed=kilometers_per_hour(activity.average_speed), climbing=meters(activity.total_elevation_gain), id=activity.id, desc=activity.name)}
         print(payload)
         #requests.post(self.mattermostUrl, data=json.dumps(payload), verify=False)
 
