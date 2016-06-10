@@ -1,16 +1,17 @@
 FROM python:2.7
 MAINTAINER Patrick G. <patrick.pollo.guilbert@gmail.com>
 
-ENV HTTP_PROXY www-proxy.lmc.ericsson.se:8080
-ENV HTTPS_PROXY www-proxy.lmc.ericsson.se:8080
+ENV version=0.1
 
-RUN mkdir /home/pymatterstrava
-WORKDIR /home/pymatterstravao
+WORKDIR /pymatterstrava
 
-RUN pip install numpy stravalib
+ADD https://github.com/patoupatou/pymatterstrava/archive/v${version}.tar.gz .
 
-RUN git clone https://github.com/patoupatou/pymatterstrava
+RUN pip install numpy stravalib \
+    && tar xvfz v${version}.tar.gz \
+    && rm v${version}.tar.gz \
+    && mv pymatterstrava-${version} pymatterstrava
 
-VOLUME /home/pymatterstrava/pymatterstrava/configuration
+VOLUME pymatterstrava/configuration
 
-ENTRYPOINT ["python", "/home/pymatterstrava/pymatterstrava/main.py"]
+ENTRYPOINT ["python", "pymatterstrava/main.py"]
