@@ -1,14 +1,15 @@
-FROM python:2.7
+FROM frolvlad/alpine-python2:latest
 MAINTAINER Patrick G. <patrick.pollo.guilbert@gmail.com>
 
-ENV version=0.1
+ENV version=0.2
 
 WORKDIR /pymatterstrava
 
 ADD https://github.com/patoupatou/pymatterstrava/archive/v${version}.tar.gz .
 
-RUN pip install numpy stravalib \
-    && tar xvfz v${version}.tar.gz \
+RUN pip install stravalib
+
+RUN tar xvfz v${version}.tar.gz \
     && rm v${version}.tar.gz \
     && mv pymatterstrava-${version} pymatterstrava
 

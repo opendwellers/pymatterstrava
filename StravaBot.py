@@ -3,7 +3,7 @@ from stravalib.unithelper import kilometers, kilometers_per_hour, meters
 
 import ConfigParser
 import time
-import requests 
+import requests
 import json
 
 
@@ -16,8 +16,8 @@ class StravaBot:
         self.clientId = Config.get('Strava', 'ClientId')
         self.clientSecret = Config.get('Strava', 'ClientSecret')
         self.clientAccessToken = Config.get('Strava', 'ClientAccessToken')
-        self.clubId = Config.get('Strava', 'ClubId') 
-        self.mattermostUrl = Config.get('Mattermost', 'URL') 
+        self.clubId = Config.get('Strava', 'ClubId')
+        self.mattermostUrl = Config.get('Mattermost', 'URL')
         self.delay = Config.get('Bot', 'Delay')
 
         self.client = Client()
@@ -32,7 +32,19 @@ class StravaBot:
         if (activity.athlete.firstname is None):
             activity.athlete = self.client.get_athlete(activity.athlete.id)
 
-        payload = {'username': 'strava_bot', 'icon_url': 'https://strava.github.io/api/images/logo.png', 'text': u':bicyclist: *{first_name} {last_name} : distance: {distance}, speed: {speed}, climbing: {climbing}* http://strava.com/activities/{id} {desc} :bicyclist:'.format(first_name=activity.athlete.firstname, last_name=activity.athlete.lastname, distance=kilometers(activity.distance), speed=kilometers_per_hour(activity.average_speed), climbing=meters(activity.total_elevation_gain), id=activity.id, desc=activity.name)}
+        first_name = activity.athlete.firstname
+        last_name = activity.athlete.lastname
+        distance = kilometers(activity.distance)
+        activity_duration = activity.moving_time
+        speed = kilometers_per_hour(activity.average_speed)
+        climbing = meters(activity.total_elevation_gain)
+        activity_id = activity.id
+        description = activity.name
+
+        if (len(description) > 100):
+            description = description[:97] + "..."
+
+        payload = {'username': 'strava_bot', 'icon_url': 'https://strava.github.io/api/images/logo.png', 'text': u':bicyclist: *{} {} : distance: {}, moving time duration: {}, speed: {}, climbing: {}* [{}](http://strava.com/activities/{}) :bicyclist:'.format(first_name, last_name, distance, activity_duration, speed, climbing, description, activity_id)}
         print(payload)
         requests.post(self.mattermostUrl, data=json.dumps(payload), verify=False)
 
@@ -66,13 +78,13 @@ class StravaBot:
             new_activities = set(self.client.get_club_activities(self.clubId, limit=3))
             diff_activities = self.get_new_activities(activities, new_activities)
             if len(diff_activities) > 0:
-                print('changes!')
+                print('New activities!')
                 print(diff_activities)
                 for new_activity in diff_activities:
                     details = self.get_activity_details(new_activity)
                     self.post_activity(details)
             else:
-                print('no changes')
+                print('No new activities')
 
             activities = new_activities
             time.sleep(float(self.delay))
