@@ -1,6 +1,5 @@
 from stravalib.client import Client
 from stravalib.unithelper import kilometers, kilometers_per_hour, meters
-from numpy import not_equal
 
 import ConfigParser
 import time
