@@ -4,8 +4,8 @@ Python bot that fetches data from a Strava club and pushes the latest rides to a
 # TODO
 
 * Add database or cache 
+* Find a better way to check if new activities were submitted
 * Make the payload more configurable
-* Add docker documentation
 * Add an easy way to fetch a token from the Strava api
 
 # Requirements
