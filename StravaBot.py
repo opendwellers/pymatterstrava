@@ -44,7 +44,7 @@ class StravaBot:
         if (len(description) > 100):
             description = description[:97] + "..."
 
-        payload = {'username': 'strava_bot', 'icon_url': 'https://strava.github.io/api/images/logo.png', 'text': u':bicyclist: *{} {} : distance: {}, moving time duration: {}, speed: {}, climbing: {}* [{}](http://strava.com/activities/{}) :bicyclist:'.format(first_name, last_name, distance, activity_duration, speed, climbing, description, activity_id)}
+        payload = {'username': 'strava_bot', 'icon_url': 'https://raw.githubusercontent.com/patoupatou/pymatterstrava/master/icon-strava.png', 'text': u':bicyclist: *{} {} : distance: {}, moving time duration: {}, speed: {}, climbing: {}* [{}](http://strava.com/activities/{}) :bicyclist:'.format(first_name, last_name, distance, activity_duration, speed, climbing, description, activity_id)}
         print(payload)
         requests.post(self.mattermostUrl, data=json.dumps(payload), verify=False)
 
