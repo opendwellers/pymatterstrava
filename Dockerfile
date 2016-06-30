@@ -1,7 +1,7 @@
 FROM frolvlad/alpine-python2:latest
 MAINTAINER Patrick G. <patrick.pollo.guilbert@gmail.com>
 
-ENV version=0.2
+ENV version=0.3
 
 WORKDIR /pymatterstrava
 
