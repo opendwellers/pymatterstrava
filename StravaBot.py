@@ -67,15 +67,15 @@ class StravaBot:
 
     def run(self):
 
-        activities = set(self.client.get_club_activities(self.clubId, limit=3))
+        activities = set(self.client.get_club_activities(self.clubId, limit=5))
         new_activities = activities
 
-        for activity in activities:
-            details = self.get_activity_details(activity)
-            self.post_activity(details)
+        #for activity in activities:
+            #details = self.get_activity_details(activity)
+            #self.post_activity(details)
 
         while(1):
-            new_activities = set(self.client.get_club_activities(self.clubId, limit=3))
+            new_activities = set(self.client.get_club_activities(self.clubId, limit=5))
             diff_activities = self.get_new_activities(activities, new_activities)
             if len(diff_activities) > 0:
                 print('New activities!')
