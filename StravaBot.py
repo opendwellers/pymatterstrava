@@ -2,8 +2,9 @@ from stravalib.client import Client
 from stravalib.unithelper import kilometers, kilometers_per_hour, meters
 
 import ConfigParser
+import urllib3
+import certifi
 import time
-import requests
 import json
 
 
@@ -22,10 +23,13 @@ class StravaBot:
 
         self.client = Client()
         self.client.access_token = self.clientAccessToken
-
         self.club = self.client.get_club(self.clubId)
 
-        print('Bot for club {name} with id {id} is here :^)'.format(name=self.club.name, id=self.clubId))
+        self.http = urllib3.PoolManager(
+            cert_reqs='CERT_REQUIRED',
+            ca_certs=certifi.where())
+
+        print('Bot for club {name} with id {id} is here :^)\n'.format(name=self.club.name, id=self.clubId))
 
     def post_activity(self, activity):
         payload = {}
@@ -45,8 +49,9 @@ class StravaBot:
             description = description[:97] + "..."
 
         payload = {'username': 'strava_bot', 'icon_url': 'https://raw.githubusercontent.com/patoupatou/pymatterstrava/master/icon-strava.png', 'text': u':bicyclist: *{} {} : distance: {}, moving time duration: {}, speed: {}, climbing: {}* [{}](http://strava.com/activities/{}) :bicyclist:'.format(first_name, last_name, distance, activity_duration, speed, climbing, description, activity_id)}
-        print(payload)
-        requests.post(self.mattermostUrl, data=json.dumps(payload), verify=False)
+        r = self.http.request('POST', self.mattermostUrl, headers={'Content-Type': 'application/json'}, body=json.dumps(payload))
+        print(time.ctime() + ': New activity posted')
+        print('payload: ' + str(payload) + '\n')
 
     def get_activity_details(self, activity):
         return self.client.get_activity(activity.id)
@@ -70,21 +75,21 @@ class StravaBot:
         activities = set(self.client.get_club_activities(self.clubId, limit=5))
         new_activities = activities
 
-        #for activity in activities:
-            #details = self.get_activity_details(activity)
-            #self.post_activity(details)
+        # for activity in activities:
+            # details = self.get_activity_details(activity)
+            # self.post_activity(details)
 
         while(1):
             new_activities = set(self.client.get_club_activities(self.clubId, limit=5))
             diff_activities = self.get_new_activities(activities, new_activities)
             if len(diff_activities) > 0:
-                print('New activities!')
+                print(time.ctime() + ': New activities!\n')
                 print(diff_activities)
                 for new_activity in diff_activities:
                     details = self.get_activity_details(new_activity)
                     self.post_activity(details)
             else:
-                print('No new activities')
+                print(time.ctime() + ': No new activities\n')
 
             activities = new_activities
             time.sleep(float(self.delay))
